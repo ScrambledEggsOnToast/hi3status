@@ -64,7 +64,7 @@ startStatusLine blocks = do
     requestName client "org.i3wm.hi3status" [nameAllowReplacement, nameReplaceExisting]
 
     -- Set up d-bus methods
-    export client "/" [autoMethod "org.i3wm.hi3status" "Update" $ updateAll namesUpdaters]
+    export client "/" [autoMethod "org.i3wm.hi3status" "UpdateAll" $ updateAll namesUpdaters]
     mapM_ (\(name,updater) -> do
         export client (fromString $ "/"++name) [autoMethod "org.i3wm.hi3status" "Update" $ update updater]
         return ()) namesUpdaters

@@ -96,12 +96,6 @@ waitForUpdateSignal = BlockM $ \_ u _ -> takeMVar u >> return ()
 getUpdater :: BlockM (IO ())
 getUpdater = BlockM $ \_ u _ -> return (tryPutMVar u UpdateSignal >> return ())
 
-onUpdate :: BlockM () -> BlockM ()
-onUpdate blockm = do
-    waitForUpdateSignal
-    blockm
-    onUpdate blockm
-
 class Block a where
     runBlock :: a -> BlockM ()
 

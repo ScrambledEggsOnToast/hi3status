@@ -1,31 +1,20 @@
-module Block.Backlight where
+module Block.Backlight 
+  ( BacklightBlock (BacklightBlock)
+  ) where
 
 import Block
+import Block.Util
+
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 
-import System.Process
-import System.Exit
-import GHC.IO.Handle
-
-import Control.Monad.IO.Class
-
-import Data.Text.Format
+import Data.Text.Format as TF
 import Data.String
 
-data BacklightBlock = BacklightBlock String
+data BacklightBlock = BacklightBlock { format :: String }
 
 instance Block BacklightBlock where
     runBlock (BacklightBlock f) = onUpdate $ do
-        perc <- liftIO getBacklight
-        let s = format (fromString f) (Only $ fixed 0 perc)
+        perc <- read <$> runProcess "xbacklight" [] :: BlockM Float
+        let s = TF.format (fromString f) (Only $ fixed 0 perc)
         pushBlockDescription $ emptyBlockDescription { full_text = TL.toStrict s }
-
-getBacklight :: IO Float
-getBacklight = do
-    (_, mo, _, p) <- createProcess $ (proc "xbacklight" []) { std_out = CreatePipe }
-    case mo of
-        Nothing -> error "xbacklight error"
-        Just o -> do
-            s <- hGetContents o
-            return $ read s
