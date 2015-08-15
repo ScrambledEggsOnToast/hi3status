@@ -6,7 +6,7 @@ import Control.Concurrent
 import Control.Concurrent.Chan
 import Control.Concurrent.MVar
 
-data CounterBlock = CounterBlock {counter :: Int} deriving Show
+data CounterBlock = CounterBlock {counter :: Int}
 
 instance Block CounterBlock where
     runBlock b = do

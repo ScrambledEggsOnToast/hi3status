@@ -11,4 +11,4 @@ callMethod o m = do
     callNoReply cl c
     return ()
 
-main = callMethod "/counter" "Update"
+main = callMethod "/" "Update"

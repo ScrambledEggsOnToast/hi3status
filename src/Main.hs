@@ -2,14 +2,11 @@
 
 import Block
 import StatusLine
-import Block.StaticText
+import Block.Backlight
 import Block.Clock
 import Block.Counter
 
-main = do
-    startStatusLine sampleBlocks
-  where
-    sampleBlocks = "hello" %% staticTextBlock "Hello \61441" Nothing
-                :& "time" %% ClockBlock
-                :& "counter" %% CounterBlock 0
-                :& EndBlock
+main = startStatusLine $
+         "backlight" %% BacklightBlock "\61829 {}%"
+      :& "datetime" %% ClockBlock "\61463 %H:%M:%S  \61555 %d/%m/%Y"
+      :& EndBlock

@@ -9,17 +9,17 @@ import Data.Time.Clock
 import Data.Time.Format
 import Control.Monad.IO.Class
 
-data ClockBlock = ClockBlock deriving Show
+data ClockBlock = ClockBlock String
 
 instance Block ClockBlock where
-    runBlock b = do
+    runBlock (ClockBlock format) = do
         u <- getUpdater
         liftIO $ forkIO $ timer u
         updateClock
       where
         updateClock = do
             t <- liftIO getCurrentTime
-            let s = formatTime defaultTimeLocale "%H:%M:%S %d/%m/%Y" t
+            let s = formatTime defaultTimeLocale format t
             pushBlockDescription $ emptyBlockDescription { full_text = T.pack s }
             waitForUpdateSignal
             updateClock
