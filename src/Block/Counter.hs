@@ -9,7 +9,7 @@ import Control.Concurrent.MVar
 data CounterBlock = CounterBlock {counter :: Int} deriving Show
 
 instance Block CounterBlock where
-    runBlock b pos u c = do
-        writeChan c . BlockUpdate pos $ emptyBlockDescription { full_text = T.pack . show $ counter b }
-        _ <- takeMVar u
-        runBlock (b { counter = 1 + counter b }) pos u c
+    runBlock b = do
+        pushBlockDescription $ emptyBlockDescription { full_text = T.pack . show $ counter b }
+        waitForUpdateSignal 
+        runBlock (b { counter = 1 + counter b })

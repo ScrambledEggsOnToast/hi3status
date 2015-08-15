@@ -9,8 +9,7 @@ import Control.Concurrent.MVar
 data StaticTextBlock = StaticTextBlock T.Text (Maybe T.Text) deriving Show
 
 instance Block StaticTextBlock where
-    runBlock (StaticTextBlock text color) pos u c = do
-        _ <- takeMVar u
-        writeChan c . BlockUpdate pos $ emptyBlockDescription { full_text = text, color = color }
+    runBlock (StaticTextBlock text color) = do
+        pushBlockDescription $ emptyBlockDescription { full_text = text, color = color }
 
 staticTextBlock text color = StaticTextBlock text color

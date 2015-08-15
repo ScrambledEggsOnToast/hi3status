@@ -25,7 +25,7 @@ runBlocks bs c = runBlocks' 0 bs c
 runBlocks' _ EndBlock _ = return []
 runBlocks' n (BlocksEntry i b :& bs) c = do
     u <- newMVar UpdateSignal
-    forkIO (runBlock b n u c)
+    forkIO $ runBlockM (runBlock b) n u c
     ius <- runBlocks' (n+1) bs c
     return ((i,u):ius)
 

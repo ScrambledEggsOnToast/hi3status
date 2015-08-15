@@ -11,7 +11,9 @@ import Control.Concurrent
 import Control.Concurrent.Chan
 import Control.Concurrent.MVar
 
-data BlockAlign = AlignLeft | AlignCenter | AlignRight deriving Show
+import Control.Monad.IO.Class
+
+data BlockAlign = AlignLeft | AlignCenter | AlignRight 
 
 instance A.ToJSON BlockAlign where
     toJSON AlignLeft = A.String "left"
@@ -30,7 +32,7 @@ data BlockDescription = BlockDescription
   , separator :: Maybe Bool
   , separator_block_width :: Maybe Int
   , markup :: Maybe T.Text
-  } deriving Show
+  }
 
 instance A.ToJSON BlockDescription where
     toJSON d = A.object . filter ((/= A.Null) . snd) $
@@ -61,14 +63,43 @@ emptyBlockDescription =
         Nothing
         Nothing
 
-data BlockUpdate = BlockUpdate Int BlockDescription deriving Show
+data BlockUpdate = BlockUpdate Int BlockDescription
 
 data UpdateSignal = UpdateSignal
 
-class Show a => Block a where
-    runBlock :: a -> Int -> MVar UpdateSignal -> Chan BlockUpdate -> IO ()
+data BlockM a = BlockM 
+  { runBlockM :: Int -> MVar UpdateSignal -> Chan BlockUpdate -> IO a }
 
-data BlocksEntry a = BlocksEntry String a deriving Show
+instance Functor BlockM where
+    fmap f blockm = BlockM $ \p u c -> fmap f $ runBlockM blockm p u c
+
+instance Applicative BlockM where
+    pure a = BlockM $ \_ _ _ -> return a
+    (BlockM f) <*> (BlockM a) = BlockM $ \p u c -> (f p u c) <*> (a p u c)
+
+instance Monad BlockM where
+    BlockM a >>= m = BlockM $ \p u c -> do
+        a' <- a p u c
+        runBlockM (m a') p u c
+    return = pure
+    fail e = BlockM $ \_ _ _ -> fail e
+
+instance MonadIO BlockM where
+    liftIO io = BlockM $ \_ _ _ -> io
+
+pushBlockDescription :: BlockDescription -> BlockM ()
+pushBlockDescription bd = BlockM $ \p _ c -> writeChan c . BlockUpdate p $ bd
+
+waitForUpdateSignal :: BlockM ()
+waitForUpdateSignal = BlockM $ \_ u _ -> takeMVar u >> return ()
+
+getUpdater :: BlockM (IO ())
+getUpdater = BlockM $ \_ u _ -> return (tryPutMVar u UpdateSignal >> return ())
+
+class Block a where
+    runBlock :: a -> BlockM ()
+
+data BlocksEntry a = BlocksEntry String a
 
 (%%) :: String -> a -> BlocksEntry a
 (%%) = BlocksEntry
@@ -82,10 +113,3 @@ infixr 6 :&
 blockCount :: Blocks -> Int
 blockCount EndBlock = 0
 blockCount (b :& bs) = 1 + blockCount bs
-
-instance Show Blocks where
-        show EndBlock = "EndBlock"
-        show blocks = "Blocks " ++ show' blocks
-          where
-            show' (b :& EndBlock) = "(" ++ show b ++ ")"
-            show' (b :& bs) = "(" ++ show b ++ ") " ++ show' bs
