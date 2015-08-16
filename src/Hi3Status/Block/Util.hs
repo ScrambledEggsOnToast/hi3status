@@ -1,10 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Block.Util where
+module Hi3Status.Block.Util where
 
-import Block
+import Hi3Status.Block
 
-import System.Process
 import System.Exit
 import GHC.IO.Handle
 

@@ -15,19 +15,36 @@ build-type:          Simple
 -- extra-source-files:  
 cabal-version:       >=1.10
 
-executable hi3status
-  main-is:             Main.hs
-  -- other-modules:       
-  -- other-extensions:    
-  build-depends:       base >=4.8 && <4.9, time >=1.5.0 && < 1.6.0, vector >= 0.10.0 && < 0.11.1, text >= 1.2.1 && < 1.2.2, aeson , bytestring >= 0.10.6 && < 0.10.7, dbus, transformers, process, text-format, regex-pcre-builtin
+library
+  exposed-modules:     Hi3Status
+                       Hi3Status.StatusLine
+                       Hi3Status.Block
+                       Hi3Status.Block.Util
+                       Hi3Status.Blocks.Backlight
+                       Hi3Status.Blocks.Battery
+                       Hi3Status.Blocks.Clock
+                       Hi3Status.Blocks.Counter
+                       Hi3Status.Blocks.StaticText
+                       Hi3Status.Blocks.Volume
+                       Hi3Status.Blocks.Wifi
+  other-modules:       Hi3Status.Block.Internal
+  build-depends:       base >=4.8 && <4.9, vector, text, aeson, dbus, transformers, bytestring, process, time, regex-pcre-builtin
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -O2 -threaded
 
+executable hi3status-example
+  main-is:             Main.hs
+  -- other-modules:       
+  -- other-extensions:    
+  build-depends:       base >=4.8 && <4.9, hi3status
+  hs-source-dirs:      hi3status-example
+  default-language:    Haskell2010
+
 executable hi3status-ctl
-  main-is:             MainCtl.hs
+  main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9, dbus, process
-  hs-source-dirs:      src
+  hs-source-dirs:      hi3status-ctl
   default-language:    Haskell2010

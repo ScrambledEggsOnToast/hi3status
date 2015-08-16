@@ -1,9 +1,9 @@
-module Block.Backlight 
-  ( BacklightBlock (BacklightBlock)
+module Hi3Status.Blocks.Backlight 
+  ( BacklightBlock (..)
   ) where
 
-import Block
-import Block.Util
+import Hi3Status.Block
+import Hi3Status.Block.Util
 
 import qualified Data.Text as T
 

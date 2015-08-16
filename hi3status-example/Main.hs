@@ -1,13 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Block
-import StatusLine
-import Block.Backlight
-import Block.Clock
-import Block.Counter
-import Block.Battery
-import Block.Volume
-import Block.Wifi
+import Hi3Status
+import Hi3Status.Blocks.Backlight
+import Hi3Status.Blocks.Clock
+import Hi3Status.Blocks.Counter
+import Hi3Status.Blocks.Battery
+import Hi3Status.Blocks.Volume
+import Hi3Status.Blocks.Wifi
  
 main = startStatusLine $
          "volume" %% VolumeBlock "{icon} {perc}%" "{icon}" "\61480" "\61479" "\61478" "default" "Master"

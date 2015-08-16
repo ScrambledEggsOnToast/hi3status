@@ -1,9 +1,9 @@
-module Block.Volume 
-  ( VolumeBlock (VolumeBlock)
+module Hi3Status.Blocks.Volume 
+  ( VolumeBlock (..)
   ) where
 
-import Block
-import Block.Util
+import Hi3Status.Block
+import Hi3Status.Block.Util
 
 import qualified Data.Text as T
 

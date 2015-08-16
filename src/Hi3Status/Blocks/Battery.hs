@@ -1,9 +1,9 @@
-module Block.Battery 
-  ( BatteryBlock (BatteryBlock)
+module Hi3Status.Blocks.Battery 
+  ( BatteryBlock (..)
   ) where
 
-import Block
-import Block.Util
+import Hi3Status.Block
+import Hi3Status.Block.Util
 
 import qualified Data.Text as T
 

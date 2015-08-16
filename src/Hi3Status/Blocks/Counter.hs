@@ -1,10 +1,10 @@
-module Block.Counter where
+module Hi3Status.Blocks.Counter
+  ( CounterBlock (..) 
+  ) where
 
-import Block
+import Hi3Status.Block
+
 import qualified Data.Text as T
-import Control.Concurrent
-import Control.Concurrent.Chan
-import Control.Concurrent.MVar
 
 data CounterBlock = CounterBlock {counter :: Int}
 

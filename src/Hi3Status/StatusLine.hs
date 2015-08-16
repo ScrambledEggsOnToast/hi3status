@@ -1,7 +1,13 @@
-{-# LANGUAGE OverloadedStrings #-}
-module StatusLine where
+{-# LANGUAGE GADTs, OverloadedStrings #-}
+module Hi3Status.StatusLine 
+  ( startStatusLine
+  , Blocks (..)
+  , BlocksEntry ()
+  , (%%)
+  ) where
 
-import Block
+import Hi3Status.Block
+import Hi3Status.Block.Internal
 
 import System.IO
 
@@ -19,6 +25,21 @@ import DBus
 import DBus.Client
 
 import qualified Data.Aeson as A
+
+data BlocksEntry a = BlocksEntry String a
+
+(%%) :: String -> a -> BlocksEntry a
+(%%) = BlocksEntry
+infixl 7 %%
+
+data Blocks where
+    EndBlock :: Blocks
+    (:&) :: Block a => BlocksEntry a -> Blocks -> Blocks
+infixr 6 :&
+
+blockCount :: Blocks -> Int
+blockCount EndBlock = 0
+blockCount (b :& bs) = 1 + blockCount bs
 
 runBlocks :: Blocks -> Chan BlockUpdate -> IO [(String, MVar UpdateSignal)]
 runBlocks bs c = runBlocks' 0 bs c
@@ -39,8 +60,6 @@ receiveUpdates c ds = do
     B.putStr out
     putStr ","
     receiveUpdates c ds
-
-update u = tryPutMVar u UpdateSignal >> return ()
 
 updateAll us = mapM_ (\(_,u) -> update u) us
 

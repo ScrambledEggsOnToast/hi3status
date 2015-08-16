@@ -1,7 +1,9 @@
-module Block.Clock where
+module Hi3Status.Blocks.Clock
+  ( ClockBlock (..)
+  ) where
 
-import Block
-import Block.Util
+import Hi3Status.Block
+import Hi3Status.Block.Util
 
 import qualified Data.Text as T
 

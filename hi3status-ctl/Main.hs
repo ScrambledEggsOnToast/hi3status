@@ -16,7 +16,7 @@ data CtlAction = UpdateAll | Update String
 
 connectHi3status :: IO Client
 connectHi3status = do
-    pid <- read <$> readProcess "pidof" ["-s","hi3status"] "" :: IO Int
+    pid <- read <$> readProcess "pidof" ["-s","i3"] "" :: IO Int
     addrStr <- (head . lines) <$> readProcess "grep" ["-ozP","(?<=DBUS_SESSION_BUS_ADDRESS=).*","/proc/"++show pid++"/environ"] ""
     let maddr = parseAddress addrStr
     case maddr of 

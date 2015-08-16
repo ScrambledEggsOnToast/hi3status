@@ -1,10 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Block.Wifi where
+module Hi3Status.Blocks.Wifi
+  ( WifiBlock (..)
+  ) where
 
-import Block
-import Block.StaticText
-import Block.Util
+import Hi3Status.Block
+import Hi3Status.Block.Util
 
 import qualified Data.Text as T
 
@@ -13,13 +14,10 @@ import Data.List
 import Control.Monad.IO.Class
 import System.Process
 
-
--- TODO : make this not just static text
-
 data WifiBlock = WifiBlock { connectedFormat :: String, disconnectedFormat :: String, connectedColor :: Maybe String, disconnectedColor :: Maybe String, device :: String }
 
 instance Block WifiBlock where
-    runBlock b = onUpdate $ do
+    runBlock b = periodic 5000000 $ do
         ms <- iwconfig (device b)
         let text = case ms of
                 Nothing -> formatText [] $ disconnectedFormat b
