@@ -7,13 +7,28 @@ import Data.String
 import System.Console.GetOpt
 import System.Environment
 
+import System.Process
+import GHC.IO.Handle
+
 data CtlOption = BlockName String deriving Show
 
 data CtlAction = UpdateAll | Update String
 
+connectHi3status :: IO Client
+connectHi3status = do
+    pid <- read <$> readProcess "pidof" ["-s","hi3status"] "" :: IO Int
+    addrStr <- (head . lines) <$> readProcess "grep" ["-ozP","(?<=DBUS_SESSION_BUS_ADDRESS=).*","/proc/"++show pid++"/environ"] ""
+    let maddr = parseAddress addrStr
+    case maddr of 
+        Nothing -> fail "couldn't get hi3status dbus address"
+        Just addr -> do
+            putStrLn "Connecting"
+            cl <- connect addr
+            return cl
+
 callMethod :: String -> String -> IO ()
 callMethod o m = do
-    cl <- connectSession
+    cl <- connectHi3status
     let c = (methodCall (fromString o) "org.i3wm.hi3status" (fromString m)) { methodCallDestination = Just "org.i3wm.hi3status" }
     callNoReply cl c
     return ()

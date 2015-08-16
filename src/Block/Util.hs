@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Block.Util where
 
 import Block
@@ -10,13 +12,7 @@ import Control.Concurrent
 
 import Control.Monad.IO.Class
 
--- run a process and return its stdout
-runProcess :: FilePath -> [String] -> BlockM String
-runProcess fp args = liftIO $ do
-    (_, mo, _, p) <- createProcess $ (proc fp args) { std_out = CreatePipe }
-    case mo of
-        Nothing -> error $ "subprocess error: " ++ fp
-        Just o -> hGetContents o
+import qualified Data.Text as T
 
 -- perform a given blockm at an update signal
 onUpdate :: BlockM () -> BlockM ()
@@ -47,3 +43,7 @@ periodic_ t blockm = do
     blockm
     liftIO $ threadDelay t
     periodic_ t blockm
+
+formatText :: [(String, String)] -> String -> T.Text
+formatText subs format = foldl (flip ($)) (T.pack format) $ map makeFormatter subs
+  where makeFormatter (t,s) = T.replace (T.concat ["{",T.pack t,"}"]) (T.pack s)

@@ -7,17 +7,24 @@ import Block.Util
 
 import qualified Data.Text as T
 
+import Control.Monad.IO.Class
+import System.Process
+
+import Text.Regex.PCRE
+import Text.Read
+import Data.Maybe
+
 data BatteryBlock = BatteryBlock { format :: String, batteryIcons :: [String], chargingIcon :: String, goodColor :: Maybe String, lowColor :: Maybe String, chargingColor :: Maybe String, lowThreshold :: Int }
 
 instance Block BatteryBlock where
-    runBlock b = periodic 10000000 $ do
+    runBlock b = periodic 5000000 $ do
         (charging, perc, time) <- acpi
-        let i = chooseIcon (batteryIcons b) perc
-            s = i ++ " " ++ show perc ++ "% " ++ time
+        let i = chooseIcon (batteryIcons b) perc ++ if charging then chargingIcon b else ""
+            text = formatText [("icon", i),("perc", show perc),("time",time)] $ format b
             c = if charging then chargingColor b
                   else if perc <= lowThreshold b then lowColor b
                       else goodColor b
-        pushBlockDescription $ emptyBlockDescription { full_text = T.pack s, color = T.pack <$> c }
+        pushBlockDescription $ emptyBlockDescription { full_text = text, color = T.pack <$> c }
 
 chooseIcon :: [String] -> Int -> String
 chooseIcon [] _ = ""
@@ -25,12 +32,13 @@ chooseIcon icons perc = icons !! (round $ (realToFrac $ (length icons - 1) * per
 
 acpi :: BlockM (Bool, Int, String)
 acpi = do
-    -- sample : ["Battery","0:","Discharging,","73%,","02:59:42","remaining"]
-    s <- words <$> runProcess "acpi" []
-    let charging = s !! 2 /= "Discharging,"
-        perc = read . init . init $ s !! 3
-        hm = init . init . init $ s !! 4
-        h = read [hm !! 0, hm !! 1] :: Int
-        m = read [hm !! 3, hm !! 4] :: Int
-        time = show h ++ "h" ++ show m ++ "m"
+    s <- liftIO $ readProcess "acpi" [] ""
+    let charging = s =~ "Charging" :: Bool
+        perc = read $ s =~ "[0-9]*(?=%)" :: Int
+        mh = readMaybe $ s =~ "[0-9][0-9](?=:)" :: Maybe Int
+        mm = readMaybe $ s =~ "(?<=:)[0-9][0-9](?=:)" :: Maybe Int
+        time = fromMaybe "full" $ do
+            h <- mh
+            m <- mm
+            return $ show h ++ "h" ++ show m ++ "m"
     return (charging, perc, time)
