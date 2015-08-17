@@ -1,10 +1,16 @@
+{-|
+Module      : Hi3Status.StatusLine
+License     : MIT
+Maintainer  : Josh Kirklin (jjvk2@cam.ac.uk)
+Stability   : experimental
+-}
 {-# LANGUAGE GADTs, OverloadedStrings #-}
-module Hi3Status.StatusLine 
-  ( startStatusLine
-  , Blocks (..)
-  , BlocksEntry ()
-  , (%%)
-  ) where
+module Hi3Status.StatusLine (
+    startStatusLine,
+    Blocks,
+    BlocksEntry (),
+    (%%)
+    ) where
 
 import Hi3Status.Block
 import Hi3Status.Block.Internal
@@ -26,29 +32,23 @@ import DBus.Client
 
 import qualified Data.Aeson as A
 
-data BlocksEntry a = BlocksEntry String a
+-- | A unique name attached to a block.
+data BlocksEntry where
+    BlocksEntry :: Block a => String -> a -> BlocksEntry
 
-(%%) :: String -> a -> BlocksEntry a
+-- | Construct a 'BlocksEntry' from a unique name and a block.
+(%%) :: Block a => String -> a -> BlocksEntry
 (%%) = BlocksEntry
 infixl 7 %%
 
-data Blocks where
-    EndBlock :: Blocks
-    (:&) :: Block a => BlocksEntry a -> Blocks -> Blocks
-infixr 6 :&
-
-blockCount :: Blocks -> Int
-blockCount EndBlock = 0
-blockCount (b :& bs) = 1 + blockCount bs
+-- | A list of 'BlocksEntry's.
+type Blocks = [BlocksEntry]
 
 runBlocks :: Blocks -> Chan BlockUpdate -> IO [(String, MVar UpdateSignal)]
-runBlocks bs c = runBlocks' 0 bs c
-runBlocks' _ EndBlock _ = return []
-runBlocks' n (BlocksEntry i b :& bs) c = do
+runBlocks bs c = mapM (\(n, BlocksEntry i b) -> do
     u <- newMVar UpdateSignal
     forkIO $ runBlockM (runBlock b) n u c
-    ius <- runBlocks' (n+1) bs c
-    return ((i,u):ius)
+    return (i,u)) . zip [0..] $ bs
 
 receiveUpdates :: Chan BlockUpdate -> MV.IOVector BlockDescription -> IO ()
 receiveUpdates c ds = do
@@ -73,7 +73,7 @@ startStatusLine blocks = do
     updateChan <- newChan :: IO (Chan BlockUpdate)
 
     -- Initiate the blockdescriptions with empty blocks
-    blockDescriptions <- MV.replicate (blockCount blocks) emptyBlockDescription :: IO (MV.IOVector BlockDescription)
+    blockDescriptions <- MV.replicate (length blocks) emptyBlockDescription :: IO (MV.IOVector BlockDescription)
 
     -- Start the blocks, and obtain their names/updaters
     namesUpdaters <- runBlocks blocks updateChan

@@ -1,2 +1,2 @@
 import Hi3Status
-main = hi3status defaultBlocks
+main = hi3status []

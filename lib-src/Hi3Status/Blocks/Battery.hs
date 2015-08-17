@@ -1,3 +1,9 @@
+{-|
+Module      : Hi3Status.Blocks.Battery
+License     : MIT
+Maintainer  : Josh Kirklin (jjvk2@cam.ac.uk)
+Stability   : experimental
+-}
 module Hi3Status.Blocks.Battery 
   ( BatteryBlock (..)
   ) where
@@ -14,7 +20,28 @@ import Text.Regex.PCRE
 import Text.Read
 import Data.Maybe
 
-data BatteryBlock = BatteryBlock { format :: String, batteryIcons :: [String], chargingIcon :: String, goodColor :: Maybe String, lowColor :: Maybe String, chargingColor :: Maybe String, lowThreshold :: Int }
+-- | A battery indicator. Uses @acpi@ as a backend.
+data BatteryBlock = BatteryBlock {
+    -- | The format of the display text.
+    --
+    -- * @{icon}@ = Icon
+    -- * @{perc}@ = Percentage charge
+    -- * @{time}@ = Time remaining
+    format :: String,
+    -- | A list of icons for the battery in order of increasing charge.
+    batteryIcons :: [String],
+    -- | An icon to display when the battery is charging.
+    chargingIcon :: String,
+    -- | The color to use when the battery has plenty of charge.
+    goodColor :: Maybe String,
+    -- | The color to use when the battery is low on charge.
+    lowColor :: Maybe String,
+    -- | The color to use when the battery is charging.
+    chargingColor :: Maybe String,
+    -- | For percentages below this threshold, 'lowColor' is used; for 
+    -- percentages above, 'goodColor' is used.
+    lowThreshold :: Int 
+    }
 
 instance Block BatteryBlock where
     runBlock b = periodic 5000000 $ do

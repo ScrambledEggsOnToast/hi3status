@@ -1,3 +1,9 @@
+{-|
+Module      : Hi3Status.Blocks.Clock
+License     : MIT
+Maintainer  : Josh Kirklin (jjvk2@cam.ac.uk)
+Stability   : experimental
+-}
 module Hi3Status.Blocks.Clock
   ( ClockBlock (..)
   ) where
@@ -11,7 +17,12 @@ import Data.Time.Clock
 import Data.Time.Format
 import Control.Monad.IO.Class
 
-data ClockBlock = ClockBlock { format :: String }
+-- | A clock.
+data ClockBlock = ClockBlock {
+    -- | The format of the clock. Conventions for substitution are those used
+    -- by @strftime@.
+    format :: String
+    }
 
 instance Block ClockBlock where
     runBlock (ClockBlock format) = periodic_ 1000000 $ do
