@@ -22,9 +22,11 @@ library
                        Hi3Status.Blocks.StaticText
                        Hi3Status.Blocks.Volume
                        Hi3Status.Blocks.Wifi
+                       Hi3Status.Blocks.Ethernet
+                       Hi3Status.Blocks.Network
   other-modules:       Hi3Status.Block.Internal
                        Hi3Status.StatusLine
-  build-depends:       base >=4.8 && <4.9, vector, text, aeson, dbus, transformers, bytestring, process, time, regex-pcre-builtin, dyre
+  build-depends:       base >=4.8 && <4.9, vector, text, aeson, dbus, transformers, bytestring, process, time, regex-pcre-builtin, dyre, prefix-units
   hs-source-dirs:      lib-src
   default-language:    Haskell2010
   ghc-options:         -O2 -threaded
