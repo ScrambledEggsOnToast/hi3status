@@ -11,6 +11,7 @@ module Hi3Status.Blocks.Window (
     ) where
 
 import Hi3Status.Block
+import Hi3Status.Block.Util
 
 import Network.Socket hiding (send, sendTo, recv, recvFrom)
 import Network.Socket.ByteString.Lazy
@@ -53,7 +54,11 @@ instance Block WindowBlock where
             let titleResult = AT.parse focusParser p
             case titleResult of
                 AT.Error _ -> return ()
-                AT.Success title -> pushBlockDescription $ emptyBlockDescription { full_text = title }
+                AT.Success title -> do
+                    let t = case (maxLength b) of
+                            Nothing -> T.unpack title
+                            Just n -> (take n $ T.unpack title) ++ (if n < T.length title then "..." else "")
+                    pushBlockDescription $ emptyBlockDescription { full_text = formatText [("title", t)] (format b) }
             go soc
 
 sendMessage :: Socket -> MessageType -> BS.ByteString -> IO Int64
