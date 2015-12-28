@@ -58,9 +58,7 @@ instance Block WindowBlock where
                 case titleResult of
                     AT.Error _ -> return ()
                     AT.Success (Just title) -> do
-                        let t = case (maxLength b) of
-                                Nothing -> T.unpack title
-                                Just n -> (take n $ T.unpack title) ++ (if n < T.length title then "..." else "")
+                        let t = maxLengthText (T.unpack title) (maxLength b)
                         pushBlockDescription $ emptyBlockDescription { full_text = formatText [("title", t)] (format b) }
                     otherwise -> pushBlockDescription emptyBlockDescription { full_text = "" }
             go soc

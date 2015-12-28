@@ -17,7 +17,8 @@ module Hi3Status.Block.Util (
     periodic,
     periodic_,
     -- * Text formatting
-    formatText
+    formatText,
+    maxLengthText
     ) where
 
 import Hi3Status.Block
@@ -68,3 +69,9 @@ formatText subs format = foldl (flip ($)) (T.pack format)
                             $ map makeFormatter subs
   where 
     makeFormatter (t,s) = T.replace (T.concat ["{",T.pack t,"}"]) (T.pack s)
+
+maxLengthText :: String -> Maybe Int -> String
+maxLengthText t ml = case ml of
+    Nothing -> t
+    Just n -> (take n t) ++ (if n < length t then "..." else "")
+
