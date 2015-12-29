@@ -69,6 +69,7 @@ Note that the name specified above is the unique name given in the 'BlocksEntry'
 module Hi3Status (
   -- * Main entry point
     hi3status,
+    startStatusLine,
   -- * Blocks
     Blocks (..),
     BlocksEntry,
@@ -83,7 +84,7 @@ import qualified Config.Dyre as Dyre
 import Data.String
 
 showError :: Blocks -> String -> Blocks
-showError bs e = "error" %% StaticTextBlock (fromString e) Nothing : bs
+showError bs e = "error" %% StaticTextBlock (fromString (head . lines $ e)) Nothing : bs
 
 realMain bs = startStatusLine bs
 
@@ -93,3 +94,4 @@ hi3status = Dyre.wrapMain $ Dyre.defaultParams
     , Dyre.realMain = realMain
     , Dyre.showError = showError
     }
+
