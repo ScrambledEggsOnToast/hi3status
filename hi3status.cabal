@@ -1,5 +1,5 @@
 name:                hi3status
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis:            Status line for i3bar.
 description:         Hi3status is a compact, lightweight, responsive and highly configurable status line for i3bar.
 license:             MIT
