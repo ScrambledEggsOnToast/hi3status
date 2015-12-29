@@ -17,6 +17,7 @@ import Data.Maybe (fromJust)
 
 import Control.Monad.IO.Class
 import System.Process
+import System.Exit
 
 -- | Currently playing music. Uses @playerctl@.
 data MusicBlock = MusicBlock {
@@ -36,7 +37,7 @@ data MusicBlock = MusicBlock {
     }
 
 instance Block MusicBlock where
-    runBlock b = periodic 10000000 $ do
+    runBlock b = periodic 1000000 $ do
         p <- liftIO playing
         if p == Nothing 
             then pushBlockDescription $ emptyBlockDescription
@@ -53,10 +54,11 @@ instance Block MusicBlock where
 
 playing :: IO (Maybe Bool)
 playing = do
-    p <- readProcess "playerctl" ["status"] ""
-    if "laying" `isInfixOf` p then return (Just True)
-        else if "ause" `isInfixOf` p then return (Just False)
-            else return Nothing
+    (e,p,_) <- readProcessWithExitCode "playerctl" ["status"] ""
+    if e == ExitFailure 1 then return Nothing
+        else if "laying" `isInfixOf` p then return (Just True)
+            else if "ause" `isInfixOf` p then return (Just False)
+                else return Nothing
 
 metadata :: IO (String, String, String)
 metadata = do

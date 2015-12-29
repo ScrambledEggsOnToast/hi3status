@@ -100,21 +100,23 @@ socketAddr = do
 windowParser :: A.Value -> AT.Parser (Maybe T.Text)
 windowParser = AT.withObject "Window event object" $ \o -> do
     AT.String t <- o .: "change"
-    if (t == "focus" || t == "title")
-        then do
-            AT.Object c <- o .: "container" 
-            AT.Object pr <- c .: "window_properties"
-            AT.String title <- pr .: "title"
-            return (Just title)
-        else AT.typeMismatch "Window event focus change" (AT.Object o)
+    if t == "close" then return Nothing
+        else if (t == "focus" || t == "title")
+            then do
+                AT.Object c <- o .: "container" 
+                AT.Object pr <- c .: "window_properties"
+                AT.String title <- pr .: "title"
+                return (Just title)
+            else AT.typeMismatch "Window event focus change" (AT.Object o)
 
 workspaceParser :: A.Value -> AT.Parser (Maybe T.Text)
 workspaceParser = AT.withObject "Workspace event object" $ \o -> do
     AT.String t <- o .: "change"
-    if t == "focus"
-        then do
-            AT.Object curr <- o .: "current"
-            n <- curr .: "nodes"
-            fn <- curr .: "floating_nodes"
-            if (n == AT.emptyArray && fn == AT.emptyArray) then return Nothing else AT.typeMismatch "Workspace empty" (AT.Object o)
-        else AT.typeMismatch "Workspace event focus change" (AT.Object o)
+    if t == "empty" then return Nothing
+        else if t == "focus"
+            then do
+                AT.Object curr <- o .: "current"
+                n <- curr .: "nodes"
+                fn <- curr .: "floating_nodes"
+                if (n == AT.emptyArray && fn == AT.emptyArray) then return Nothing else AT.typeMismatch "Workspace empty" (AT.Object o)
+            else AT.typeMismatch "Workspace event focus change" (AT.Object o)
