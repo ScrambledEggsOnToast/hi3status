@@ -23,7 +23,7 @@ If you want to use a preset bar, add `-p` to the status-command. If you want tha
 
 ### hi3status configuration
 
-To gain more control over the contents of the bar, it is necessary to write a configuration file to be located at `~/.config/hi3status/hi3status.hs`. A brief example of this file is given below:
+To gain more control over the contents of the bar, it is necessary to have a configuration file, located at `~/.config/hi3status/hi3status.hs`. A brief example of this file is given below:
     
     -- hi3status.hs
     import Hi3Status
@@ -54,6 +54,7 @@ Hi3status includes the following built-in blocks:
 * `Backlight`: A backlight percentage brightness indicator. Uses xbacklight as a backend.
 * `Battery`: A battery indicator. Uses acpi as a backend.
 * `Clock`: A customisable clock.
+* `Command`: A block for executing arbitrary shell commands.
 * `Ethernet`: An ethernet status indicator. Uses files at `/sys/class/net/`.
 * `Music`: Displays currently playing music. Uses playerctl as a backend.
 * `Network`: A network transfer rate indicator. Uses files at `/sys/class/net/`.
@@ -90,6 +91,10 @@ It is easy to write custom blocks for hi3status. Here is a brief example demonst
             pushBlockDescription $ emptyBlockDescription { full_text = T.pack $ text b, color = T.pack <$> textColor b }
 
 More details can be found in the haddock documentation.
+
+It is worth noting that many requirements can be fulfilled by using the `Command` block. For example, if I wanted to have a block displaying the free space in my root partition, I would use the following:
+
+    "disk" %% CommandBlock "df --output=avail -h / | head -2 | tail -1 | sed 's/^ *//g'" "\61600 {stdout}B" (Just 60000000)
 
 ### hi3status-ctl
 

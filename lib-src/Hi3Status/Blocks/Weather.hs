@@ -19,7 +19,7 @@ import Control.Monad.IO.Class
 
 data Conditions = ClearDay | ClearNight | Rain | Cloudy
 
--- | A simple block that displays a piece of static text. Requires @weather@ and @sunwait@.
+-- | A block to display the weather. Requires @weather@ and @sunwait@.
 data WeatherBlock = WeatherBlock  {
     -- | The weather format.
     --
