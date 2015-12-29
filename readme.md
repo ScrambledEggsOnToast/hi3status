@@ -94,7 +94,8 @@ More details can be found in the haddock documentation.
 
 It is worth noting that many requirements can be fulfilled by using the `Command` block. For example, if I wanted to have a block displaying the free space in my root partition, I would use the following:
 
-    "disk" %% CommandBlock "df --output=avail -h / | head -2 | tail -1 | sed 's/^ *//g'" "\61600 {stdout}B" (Just 60000000)
+    "disk" %% CommandBlock "df --output=avail -h / | head -2 | tail -1 | sed 's/^ *//g'" 
+                "{stdout}B" (Just 60000000)
 
 ### hi3status-ctl
 
